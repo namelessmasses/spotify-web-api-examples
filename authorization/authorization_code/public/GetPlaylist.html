@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Get Playlist</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <style type="text/css">
+        #getplaylist {
+            display: none;
+        }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    </head>
+    <body>
+        <div>Select a playlist:</div>
+        <form>
+            <select id="playlist-select" onchange="getPlaylist(this.value)"></select>
+        </form>
+        <div id="tracks"/>
+
+        <script id="playlist-template" type="text/x-handlebars-template">
+            {{#each this}}
+            <option value="{{this.id}}">{{this.name}}</option>
+            {{/each}}
+        </script>
+
+        <script id="plalist-items-template" type="text/x-handlebars-template">
+            {{#each this}}
+            <div>{{this.track.name}}</div>
+            {{/each}}
+        </script>
+
+        <script>
+            function getPlaylist(playlistId) {
+            fetch('/getplaylist?id=' + playlistId)
+            .then(response => response.json())
+            .then(playlist => {
+                // Handle the playlist data
+                var source = document.getElementById('plalist-items-template').innerHTML;
+                var template = Handlebars.compile(source);
+                var html = template(playlist);
+                document.getElementById('tracks').innerHTML = html;
+            });
+            }
+
+            fetch('/getplaylists')
+            .then(response => response.json())
+            .then(playlists => {
+            var source = document.getElementById('playlist-template').innerHTML;
+            var template = Handlebars.compile(source);
+            var html = template(playlists);
+            document.getElementById('playlist-select').innerHTML = html;
+            });
+        </script>
+    </body>
+</html>
